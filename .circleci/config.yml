@@ -19,6 +19,9 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - run: echo world
+      name: "echo an env var that is part of our project"
+          command: |
+            echo $test # this env var must be set within the project
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
