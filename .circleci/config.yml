@@ -8,24 +8,45 @@ version: 2.1
 orbs:
   # Declare a dependency on the welcome-orb
   welcome: circleci/welcome-orb@0.4.1
+commands:
+  print_pipeline_id:
+    description: "A very simple command for printing pipeline id"
+    parameters:
+      to:
+        type: string
+        default: $CIRCLE_WORKFLOW_ID # "Hello World"
+    steps:
+      - run: echo << parameters.to >>
+      
 jobs:
-  save_hello_world_output:
+  test_reusable_code:
     docker:
       - image: circleci/node:13.8.0
+    command: print_pipeline_id
     steps:
       - run: echo "hello world" > ~/output.txt
       - persist_to_workspace:
           root: ~/
           paths:
             - output.txt
+  
+  # save_hello_world_output:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - run: echo "hello world" > ~/output.txt
+  #     - persist_to_workspace:
+  #         root: ~/
+  #         paths:
+  #           - output.txt
 
-  print_output_file:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: cat ~/output.txt
+  # print_output_file:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - attach_workspace:
+  #         at: ~/
+  #     - run: cat ~/output.txt
   
   # print_hello:
   #   docker:
@@ -54,10 +75,11 @@ workflows:
   welcome:
     # Run the welcome/run job in its own container
     jobs:
-      - save_hello_world_output
-      - print_output_file:
-          requires:
-            - save_hello_world_output
+      - test_reusable_code
+      # - save_hello_world_output
+      # - print_output_file:
+      #     requires:
+      #       - save_hello_world_output
       
       # - welcome/run
       # - print_hello
