@@ -14,18 +14,35 @@ commands:
       - run: echo ${CIRCLE_WORKFLOW_ID}
       
 jobs:
-  create_infrastructure: 
-      docker:
-        - image: amazon/aws-cli
-      steps:
-        - checkout
-        - run:
-            name: Create Cloudformation Stack
-            command: |
-              aws cloudformation deploy \
-                --template-file ci-cd-demo.yml \
-                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-                --region us-east-1
+  # Exercise: Config and Deployment
+  configure_infrastructure: 
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["ac:1a:f2:9e:55:63:46:2c:a7:37:37:7a:8a:04:15:88"] # You can get this ID in the section where you registered the SSH Key
+      - run:
+          name: Install dependencies
+          command: |
+            # install the dependencies needed for your playbook
+            apk add --update ansible 
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i inventory.txt main4.yml
+  #create_infrastructure: 
+  #    docker:
+  #      - image: amazon/aws-cli
+  #    steps:
+  #      - checkout
+  #      - run:
+  #          name: Create Cloudformation Stack
+  #          command: |
+  #            aws cloudformation deploy \
+  #              --template-file ci-cd-demo.yml \
+  #              --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+  #              --region us-east-1
   #test_reusable_code:
   #  docker:
   #    - image: circleci/node:13.8.0
@@ -77,7 +94,8 @@ workflows:
   welcome:
     # Run the welcome/run job in its own container
     jobs:
-      - create_infrastructure
+      - configure_infrastructure
+      # - create_infrastructure
       # - test_reusable_code
       # - save_hello_world_output
       # - print_output_file:
