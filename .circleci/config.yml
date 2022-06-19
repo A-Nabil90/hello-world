@@ -77,7 +77,7 @@ workflows:
   welcome:
     # Run the welcome/run job in its own container
     jobs:
-      create_infrastructure
+      - create_infrastructure
       # - test_reusable_code
       # - save_hello_world_output
       # - print_output_file:
