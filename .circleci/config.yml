@@ -14,12 +14,24 @@ commands:
       - run: echo ${CIRCLE_WORKFLOW_ID}
       
 jobs:
-  test_reusable_code:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - print_pipeline_id 
-      
+  create_infrastructure: 
+      docker:
+        - image: amazon/aws-cli
+      steps:
+        - checkout
+        - run:
+            name: Create Cloudformation Stack
+            command: |
+              aws cloudformation deploy \
+                --template-file template.yml \
+                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+                --region us-east-1
+  #test_reusable_code:
+  #  docker:
+  #    - image: circleci/node:13.8.0
+  #  steps:
+  #    - print_pipeline_id 
+  #    
   # save_hello_world_output:
   #   docker:
   #     - image: circleci/node:13.8.0
@@ -65,7 +77,8 @@ workflows:
   welcome:
     # Run the welcome/run job in its own container
     jobs:
-      - test_reusable_code
+      create_infrastructure
+      # - test_reusable_code
       # - save_hello_world_output
       # - print_output_file:
       #     requires:
